@@ -23,21 +23,21 @@ const GameEventManager = cc.Class({
     connect(hostStr, callBack) {
         const self = this;
         this.gameSocket = new WebSocket(hostStr);
-        this.gameSocket.onopen = () => {
+        this.gameSocket.onopen = () => {  // 坚听到这个函数，说明已经连上服务器了
             cc.log(`websocket has connect`);
             callBack();
         };
-        this.gameSocket.onerror = () => {
+        this.gameSocket.onerror = () => {  // 监听到这个函数，说明连接过程出现错误
             cc.log(`websocket connect error`);
         };
-        this.gameSocket.onclose = () => {
+        this.gameSocket.onclose = () => { // 这个函数说明连上服务器后，服务器关闭了
             cc.log(`websocket has close`);
         };
-        this.gameSocket.onmessage = function (data) {
+        this.gameSocket.onmessage = function (data) {  // 这个函数接受服务器给客户端的消息和数据
             data = JSON.parse(data.data);
             self.onMsg(data.msgId, data.msgData);
         };
-        this.gameSocket.sendMessage = (msgId, msgData) => {
+        this.gameSocket.sendMessage = (msgId, msgData) => {  // 这个方法用于给服务器发送请求
             if (this.gameSocket.readyState === WebSocket.OPEN) {
                 this.gameSocket.send(JSON.stringify({msgId: msgId, msgData: msgData}));
             } else {
@@ -57,7 +57,7 @@ const GameEventManager = cc.Class({
         this.gameSocket.sendMessage(msgId, msgData);
     },
     /**
-     *  关闭与服务器的连接
+     *  关闭与服务器的连接(客户端主动断开)
      */
     close() {
         this.gameSocket.close();

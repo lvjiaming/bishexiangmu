@@ -3,17 +3,27 @@ const GameEventManager = require('./GameEventManager.js');
 const XXLEventManager = cc.Class({
     extends: GameEventManager,
     statics: {
-        getInstance() {
+        getInstance() {  // 单例
             if (!this.XXLEventManager) {
                 this.XXLEventManager = new XXLEventManager();
             }
             return this.XXLEventManager;
         },
     },
+    /**
+     *  连接服务器
+     * @param hostStr 需要连接的ip和端口
+     * @param callBack  连上服务器之后的回调
+     */
     connectServer(hostStr, callBack) {
         cc.log(`XXLEventManager connect`);
         this.connect(hostStr, callBack);
     },
+    /**
+     *  需要给服务器发送消息的处理
+     * @param event 发送的消息id
+     * @param data 发送的数据
+     */
     startEvent(event, data) {
         cc.log(`发送的协议id为：${event}`);
         switch (event) {
@@ -23,6 +33,11 @@ const XXLEventManager = cc.Class({
             }
         }
     },
+    /**
+     *  收到服务器的回复后的处理
+     * @param msgId 收到的消息的id
+     * @param msgData 收到的数据
+     */
     onMsg(msgId, msgData) {
         cc.log(`收到的协议id为：${msgId}`);
         switch (msgId) {
@@ -33,19 +48,4 @@ const XXLEventManager = cc.Class({
         }
     }
 });
-XXLEventManager.Event = {
-    EVENT_LOGIN_REQ: 1,
-    EVENT_LOGIN_REP: 2,
-    EVENT_ENTER_ROOM_REQ: 3,
-    EVENT_ENTER_ROOM_REP: 4,
-    EVENT_LEAVE_ROOM_REQ: 5,
-    EVENT_LEAVE_ROOM_REP: 6,
-    EVENT_SEND_MEG_REQ: 7,
-    EVENT_SEND_MEG_REP: 8,
-    EVENT_MESSAGE_PUSH: 9,  //  大厅服务器推送的消息
-    EVENT_CREATE_ROOM_REQ: 10, //  创建房间
-    EVENT_CREATE_ROOM_REP: 11, //  创建房间回复
-    USER_ENTER_ROOM_PUSH: 12,  //  有玩家加入的推送
-    USER_LEAVE_ROOM_PUSH: 13,  //  有玩家离开房间的推送
-};
 cc.net = XXLEventManager.getInstance();
