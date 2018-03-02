@@ -10,7 +10,7 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-        cc.net.connectServer("ws://192.168.0.18:3010", () => {
+        cc.net.connectServer("ws://127.0.0.1:30011", () => {
             cc.log(`has connect`);
         });
     },
@@ -19,5 +19,5 @@ cc.Class({
 
     },
 
-    // update (dt) {},
+
 });

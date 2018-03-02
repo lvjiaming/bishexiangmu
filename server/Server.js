@@ -6,10 +6,10 @@ const webSocket = require("ws");  // npm里自带的webSocket模块
 const MsgHandle = require("./Msg/MsgHandle");
 
 const wsServer = new webSocket.Server({   //  设置ip 和 port
-    host: "192.168.0.18",
-    port: 3010
+    host: "127.0.0.1",
+    port: 30011
 });
-this.UserList = [];  //  用户列表（里面包含nickName, ws）
+this.UserList = [];  //  用户列表（里面包含nickName, 密码, ws等信息）
 console.log(`1111`);
 wsServer.on('connection', (ws) => {  //  注册连接上的事件
     console.log(`one client has connected`);
@@ -54,3 +54,4 @@ this.removeUser = function (ws) {
         }
     });
 };
+this.addUser
