@@ -90,7 +90,12 @@ const sendMsg = function (ws, data) {
         ws.send(JSON.stringify(data));
     }
 };
-
+/**
+ *  错误的消息
+ * @param id 消息id
+ * @param str 给客户端的提示信息
+ * @returns {{msgId: *, msgData: {code: number, errmsg: *}}}
+ */
 const errBody = function (id, str) {
     const body = {
         msgId: id,
@@ -101,7 +106,11 @@ const errBody = function (id, str) {
     }
     return body;
 };
-
+/**
+ *  成功的消息
+ * @param id 消息id
+ * @returns {{msgId: *, msgData: {code: number}}}
+ */
 const sucBody = function (id) {
     const body = {
         msgId: id,
