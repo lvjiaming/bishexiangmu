@@ -39,8 +39,18 @@ this.getUser = function (ws) {
             user = item;
         }
     });
-    console.log(`获取玩家${user.nickName}`);
+    if (user) {
+        console.log(`获取玩家${user.nickName}`);
+    }
     return user;
+};
+/**
+ *  添加玩家
+ * @param ws
+ * @param data
+ */
+this.addUser = function (user) {
+    this.UserList.push(user);
 };
 /**
  *  移除玩家
@@ -54,4 +64,3 @@ this.removeUser = function (ws) {
         }
     });
 };
-this.addUser

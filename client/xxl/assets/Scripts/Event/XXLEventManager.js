@@ -27,7 +27,14 @@ const XXLEventManager = cc.Class({
     startEvent(event, data) {
         cc.log(`发送的协议id为：${event}`);
         switch (event) {
-
+            case cc.const.MSG_ID.XXL_LOGIN_IN_REP: {  // 登录的请求
+                this.sendMessage(event, data);
+                break;
+            }
+            case cc.const.MSG_ID.XXL_REGSTER_REP: {  // 注册的请求
+                this.sendMessage(event, data);
+                break;
+            }
             default: {
                 break;
             }
@@ -41,7 +48,14 @@ const XXLEventManager = cc.Class({
     onMsg(msgId, msgData) {
         cc.log(`收到的协议id为：${msgId}`);
         switch (msgId) {
-
+            case cc.const.MSG_ID.XXL_REGSTER_REQ: {  // 注册的回复
+                this.notifyEvent(msgId, msgData);
+                break;
+            }
+            case cc.const.MSG_ID.XXL_LOGIN_IN_REQ: { // 登录的回复
+                this.notifyEvent(msgId, msgData);
+                break;
+            }
             default: {
                 break;
             }
