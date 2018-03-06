@@ -1,5 +1,5 @@
 
-// todo 观察者（吕佳明）
+// todo 观察者设计模式
 const EventManager = cc.Class({
 
     ObserverList: null,

@@ -29,13 +29,13 @@ wsServer.on('close', (ws) => {  // 服务器关闭的事件
 });
 
 /**
- *  获取指定玩家
- * @param ws
+ *  获取指定玩家(根据用户名)
+ * @param nickname
  */
-this.getUser = function (ws) {
+this.getUser = function (nickname) {
     let user;
     this.UserList.forEach((item) => {
-        if (item.ws === ws) {
+        if (item.nickname === nickname) {
             user = item;
         }
     });

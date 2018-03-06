@@ -3,7 +3,7 @@ const GameEventManager = require('./GameEventManager.js');
 const XXLEventManager = cc.Class({
     extends: GameEventManager,
     statics: {
-        getInstance() {  // 单例
+        getInstance() {  // 单例设计模式
             if (!this.XXLEventManager) {
                 this.XXLEventManager = new XXLEventManager();
             }

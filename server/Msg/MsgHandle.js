@@ -32,12 +32,14 @@ MsgHandle.prototype.handle = function(ws, data) {
  *  检测登录是否成功
  */
 MsgHandle.prototype.checkLogin = function(ws,data) {
-    const user = this.target.getUser(ws);
+    const user = this.target.getUser(data.nickname);
     if (user) {
         console.log(`获取到了用户信息`);
         if (user.password === data.password) {
             if (user.online) {
                 console.log(`用户已处于登录状态，重复登录`);
+                const body = errBody(msgId.MSG_ID.XXL_LOGIN_IN_REQ, "`用户已处于登录状态，重复登录！！！");
+                sendMsg(ws, body);
             } else {
                 const body = sucBody(msgId.MSG_ID.XXL_LOGIN_IN_REQ);
                 body.msgData.nickname = user.nickname;
@@ -74,6 +76,7 @@ MsgHandle.prototype.registerUser = function (ws, data) {
         user.ws = ws;
         user.nickname = data.nickname;
         user.password = data.password;
+        user.score = 0;
         user.online = false;
         this.target.addUser(user);
         const body = sucBody(msgId.MSG_ID.XXL_REGSTER_REQ);
