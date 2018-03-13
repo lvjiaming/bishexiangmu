@@ -6,8 +6,8 @@ const webSocket = require("ws");  // npm里自带的webSocket模块
 const MsgHandle = require("./Msg/MsgHandle");
 
 const wsServer = new webSocket.Server({   //  设置ip 和 port
-    host: "127.0.0.1",
-    port: 30011
+    host: "192.168.0.18",
+    port: 10001
 });
 this.UserList = [];  //  用户列表（里面包含nickName, 密码, ws等信息）
 console.log(`1111`);
