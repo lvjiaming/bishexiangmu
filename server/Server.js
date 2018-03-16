@@ -19,6 +19,11 @@ wsServer.on('connection', (ws) => {  //  注册连接上的事件
     });
     ws.on('close', () => {  // 用户断开连接事件
         console.log(`one user has close connection`);
+        const user = this.getUserByWs(ws);
+        if (user) {
+            console.log(`玩家：${user.nickname}离线`);
+            user.online = false;
+        }
     });
 });
 wsServer.on('error', (err) => {  // 连接错误的事件
@@ -40,8 +45,22 @@ this.getUser = function (nickname) {
         }
     });
     if (user) {
-        console.log(`获取玩家${user.nickName}`);
+        console.log(`获取玩家${nickname}`);
     }
+    return user;
+};
+/**
+ *  获取指定玩家（根据ws）
+ * @param ws
+ * @returns {*}
+ */
+this.getUserByWs = function (ws) {
+    let user;
+    this.UserList.forEach((item) => {
+        if (item.ws === ws) {
+            user = item;
+        }
+    });
     return user;
 };
 /**

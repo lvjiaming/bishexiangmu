@@ -15,4 +15,23 @@ Const.MSG_STATE = {  // 消息的状态
     SUC: 1, // 成功
     ERR: 2, // 错误
 };
+// item的横竖数量
+Const.ITEM_OPT = {
+    x: 8,
+    y: 8
+};
+// 每个item间的间隔
+Const.ITEM_SPACE = {
+    x: 67,
+    y: 67,
+};
+// item的类型
+Const.ITEM_TYPE = {
+    ITEM_BEAR: "ITEMBEAR",
+    ITEM_CAT: "ITEMCAT",
+    ITEM_CHICKEN: "ITEMCHICKEN",
+    ITEM_FOX: "ITEMFOX",
+    ITEM_FROG: "ITEMFROG",
+    ITEM_HORSE: "ITEMHORSE",
+};
 cc.const = Const;

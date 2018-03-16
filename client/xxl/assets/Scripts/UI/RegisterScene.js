@@ -20,7 +20,7 @@ cc.Class({
 
     onLoad () {
         cc.commonPop.init(this.node);  // 初始化提示弹窗
-        cc.net.connectServer("ws://127.0.0.1:30011", () => {  // 连接服务器
+        cc.net.connectServer("ws://192.168.0.18:10001", () => {  // 连接服务器
             cc.log(`has connect`);
         });
         cc.net.addObserver(this);  //  添加观察者
@@ -99,9 +99,13 @@ cc.Class({
                     cc.commonPop.show(`登录失败： ${data.errmsg}`, 3);
                 } else {
                     // cc.log(`登录成功`);
-                    cc.commonPop.show("登录成功", 2);
-                    cc.user.setNickName(data.nickname);
-                    cc.director.loadScene("MainScene.fire");
+                    // cc.commonPop.show("登录成功", 2);
+                    cc.loadDir.loadDirRes("DirRes", () => {
+                        // cc.commonPop.hide();
+                        cc.user.setNickName(data.nickname);
+                        cc.user.setScore(data.score);
+                        cc.director.loadScene("MainScene.fire");
+                    });
                 }
                 break;
             }

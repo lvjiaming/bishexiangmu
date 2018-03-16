@@ -42,6 +42,7 @@ const CommonPopup = cc.Class({
             } else {
                 const popup = cc.instantiate(prefab);
                 popup.getComponent("PromptPopup").setNode(note);
+
                 this._ownNode.addChild(popup);
                 if (time) {
                     popup.runAction(cc.sequence(cc.delayTime(parseInt(time)), cc.callFunc(() => {

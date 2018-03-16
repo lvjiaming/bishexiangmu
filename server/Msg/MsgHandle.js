@@ -41,9 +41,12 @@ MsgHandle.prototype.checkLogin = function(ws,data) {
                 const body = errBody(msgId.MSG_ID.XXL_LOGIN_IN_REQ, "`用户已处于登录状态，重复登录！！！");
                 sendMsg(ws, body);
             } else {
+                console.log(`密码正确：${data.password} + ${user.password}`)
                 const body = sucBody(msgId.MSG_ID.XXL_LOGIN_IN_REQ);
                 body.msgData.nickname = user.nickname;
+                body.msgData.score = user.score;
                 user.online = true;
+                user.ws = ws;
                 sendMsg(ws, body);
             }
         } else {
