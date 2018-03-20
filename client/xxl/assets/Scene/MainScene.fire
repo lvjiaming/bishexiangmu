@@ -476,6 +476,9 @@
     "nickName": {
       "__id__": 6
     },
-    "score": null
+    "score": null,
+    "gameNode": {
+      "__id__": 9
+    }
   }
 ]

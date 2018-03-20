@@ -14,6 +14,11 @@ cc.Class({
             type: cc.Label,
             tooltip: "分数",
         },
+        gameNode: {
+            default: null,
+            type: cc.Node,
+            tooltip: "游戏节点",
+        },
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -23,6 +28,10 @@ cc.Class({
         cc.net.addObserver(this);
         cc.log(`昵称为：${cc.user.getNickName()}`);
         this.initInfo();
+        cc.gameControl.initPosConfig();
+
+        // 测试代码
+        this.startGame();
     },
 
     onDestroy() {
@@ -54,6 +63,12 @@ cc.Class({
         if (this.score) {
             this.score.string = cc.user.getScore();
         }
+    },
+    /**
+     *  开始游戏
+     */
+    startGame() {
+        cc.gameControl.initItem(this.gameNode);
     },
 
     onEventMessage(event, data) {
