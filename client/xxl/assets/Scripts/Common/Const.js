@@ -22,8 +22,8 @@ Const.ITEM_OPT = {
 };
 // 每个item间的间隔
 Const.ITEM_SPACE = {
-    x: 67,
-    y: 67,
+    x: 69,
+    y: 69,
 };
 // item的类型
 Const.ITEM_TYPE = {
