@@ -11,11 +11,15 @@ const GameControl = cc.Class({
             return this.control;
         },
     },
+    _GameNode: null,  // 游戏节点，会在游戏初始化赋予
     _CurSelectItem: null,  // 当前选中的item
     _ItemArr: null,  //  item的数组(二维数组，左上角为[0][0])
+    _IsCanClick: null,  // 标记item是否能点击
     ctor() {
         this._CurSelectItem = null;
         this._ItemArr = [];
+        this._IsCanClick = true;
+        this._GameNode = null;
     },
     /**
      *  初始化位置的配置
@@ -36,7 +40,13 @@ const GameControl = cc.Class({
      * @param item
      */
     setCurSelectItem(item) {
+        if (this._CurSelectItem) {
+            this._CurSelectItem.color = cc.color(255, 255, 255, 255)
+        }
         this._CurSelectItem = item;
+        if (this._CurSelectItem) {
+            this._CurSelectItem.color = cc.color(173, 173, 173, 255);
+        }
     },
     /**
      *  获取当前选中的item
@@ -46,6 +56,18 @@ const GameControl = cc.Class({
         return this._CurSelectItem;
     },
     /**
+     *  设置Item是否能点击
+     */
+    setIsCanClick(state) {
+        this._IsCanClick = state;
+    },
+    /**
+     *  获取是否能点击
+     */
+    getIsCanClick() {
+        return this._IsCanClick;
+    },
+    /**
      *  初始化item
      */
     initItem(node) {
@@ -53,6 +75,7 @@ const GameControl = cc.Class({
             cc.error(`游戏节点未传入`);
             return;
         }
+        this._GameNode = node;
         this._ItemArr.forEach((item1, index1) => {
             item1.forEach((item2, index2) => {
                 if (!item2.item) {
@@ -198,8 +221,12 @@ const GameControl = cc.Class({
         const curItem = this.getCurSelectItem();
         if (curItem) {
             cc.log(`已经选中一个item，判断此两个item是否挨着的`);
-            if (Math.abs(curItem.zuobiao.x - item.zuobiao.x) <= 1 && Math.abs(curItem.zuobiao.y - item.zuobiao.y) <= 1) {
+            if (Math.abs(curItem.zuobiao.x - item.zuobiao.x) <= 1 &&
+                Math.abs(curItem.zuobiao.y - item.zuobiao.y) <= 1 &&
+                Math.abs(curItem.zuobiao.y - item.zuobiao.y) != Math.abs(curItem.zuobiao.x - item.zuobiao.x)) {
                 cc.log(`是相邻的两个item`);
+                this.setCurSelectItem(null);
+                this.setIsCanClick(false);
                 const result = this.checkCanClean(curItem, item);
                 if (result.res) {
                     cc.log(`做可以被消除的处理`);
@@ -208,6 +235,7 @@ const GameControl = cc.Class({
                     const centerZuoBiao = curItem.zuobiao;
                     curItem.zuobiao = item.zuobiao;
                     item.zuobiao = centerZuoBiao;
+                    this.canCleanAni(curItem, item, result.cleanArr)
                 } else {
                     cc.log(`做不能被消除的处理`);
                     this.canNotCleanAni(curItem, item);
@@ -227,6 +255,12 @@ const GameControl = cc.Class({
      * @param item2
      */
     checkCanClean(item1, item2) {
+
+        // 两个item交换
+        const center = this._ItemArr[item1.zuobiao.y][item1.zuobiao.x].item;
+        this._ItemArr[item1.zuobiao.y][item1.zuobiao.x].item = this._ItemArr[item2.zuobiao.y][item2.zuobiao.x].item
+        this._ItemArr[item2.zuobiao.y][item2.zuobiao.x].item = center;
+
         // 检查item1
         const resultLeft1 = this.checkLeft(item2.zuobiao.x, item2.zuobiao.y, item1.type);
         const resultRight1 = this.checkRight(item2.zuobiao.x, item2.zuobiao.y, item1.type);
@@ -267,7 +301,7 @@ const GameControl = cc.Class({
             const retArr = [];
             cleanArr.forEach((arr) => {
                 arr.forEach((im) => {
-                    retArr.push(im);
+                    retArr.push(this._ItemArr[im.y][im.x].item);
                 });
             });
             if (selfItem1) {
@@ -281,6 +315,11 @@ const GameControl = cc.Class({
             return result;
         } else {
             cc.log(`不能被消除`);
+            // 将前面交换的换回来
+            const center = this._ItemArr[item1.zuobiao.y][item1.zuobiao.x].item;
+            this._ItemArr[item1.zuobiao.y][item1.zuobiao.x].item = this._ItemArr[item2.zuobiao.y][item2.zuobiao.x].item
+            this._ItemArr[item2.zuobiao.y][item2.zuobiao.x].item = center;
+
             result.res = false;
             return result;
         }
@@ -290,10 +329,14 @@ const GameControl = cc.Class({
      */
     canNotCleanAni(item1, item2) {
         const func = (node1, node2) => {
-            const moveAni1 = cc.moveTo(0.5, this._ItemArr[node2.zuobiao.x][node2.zuobiao.y]);
+            const moveAni1 = cc.moveTo(0.3, this._ItemArr[node2.zuobiao.y][node2.zuobiao.x].pos);
             const del = cc.delayTime(0.1);
-            const moveAni2 = cc.moveTo(0.5, this._ItemArr[node1.zuobiao.x][node1.zuobiao.y]);
-            node1.runAction(cc.sequence(moveAni1, del, moveAni2));
+            const moveAni2 = cc.moveTo(0.3, this._ItemArr[node1.zuobiao.y][node1.zuobiao.x].pos);
+            node1.runAction(cc.sequence(moveAni1, del, moveAni2, cc.callFunc(() => {
+                if (!this.getIsCanClick()) {
+                    this.setIsCanClick(true);
+                }
+            })));
         };
         func(item1, item2);
         func(item2, item1);
@@ -303,8 +346,106 @@ const GameControl = cc.Class({
      * @param item1
      * @param item2
      */
-    canCleanAni(item1, item2) {
+    canCleanAni(item1, item2, arr) {
+        // 保存清除的item的坐标
+        const newArr = [];
+        arr.forEach((item) => {
+            newArr.push({x: item.zuobiao.x, y: item.zuobiao.y});
+        });
+        // 做清除的动作，并将需要清除的item销毁掉
+        item1.runAction(cc.moveTo(0.3, this._ItemArr[item1.zuobiao.y][item1.zuobiao.x].pos));
+        item2.runAction(cc.sequence(cc.moveTo(0.3, this._ItemArr[item2.zuobiao.y][item2.zuobiao.x].pos), cc.callFunc(() => {
+            arr.forEach((cleanItem) => {
+                this._ItemArr[cleanItem.zuobiao.y][cleanItem.zuobiao.x].item = null;
+                cleanItem.destroy();
+            });
+            this.complementNullItem(newArr);
+            // this.setIsCanClick(true);
+        })));
+    },
+    /**
+     *  检测数组中是否存在此元素，存在zuobiao的x值一样，则，比较与之相同的元素，讲zuobiao的y值最大的放入，不存在，则，直接放入数组
+     * @param arr
+     * @param item
+     */
+    checkArrHasItem(arr, item) {
+        let has = false;
+        arr.forEach((items, index) => {
+            if (items.x == item.x) {
+                has = true;
+                if (items.y < item.y) {
+                    arr[index] = item;
+                }
+            }
+        });
+        if (has == false) {
+            arr.push(item);
+        }
+    },
+    /**
+     *  补足空的item
+     */
+    complementNullItem(arr) {
 
+        // 去压缩清除的item数组
+        const newArr = [];
+        arr.forEach((item) => {
+            this.checkArrHasItem(newArr, item);
+        });
+        newArr.forEach((item) => {
+            let zuobiao_y = null;
+            for (let i = item.y; i >= 0; i --) {  // 寻找离被消除的这个item最近的一个item
+                if (this._ItemArr[i][item.x].item) {
+                    zuobiao_y = i;
+                    break;
+                }
+            }
+            if (zuobiao_y === null) {  // 此时说明被消除的这个item上面已没有item
+                zuobiao_y = -1;
+            }
+
+            const moveArr = [];  // 需要移动的item数组
+            const newItemNum = item.y - zuobiao_y;  // 需要重新生成item的个数
+            cc.log(`位置{x: ${item.x}, y: ${item.y}}, 需要生成节点数目：${newItemNum}`);
+            if (zuobiao_y != -1) {
+                for (let i = zuobiao_y; i >= 0; i --) {
+                    this._ItemArr[i + newItemNum][item.x].item = this._ItemArr[i][item.x].item;
+                    this._ItemArr[i + newItemNum][item.x].item.zuobiao = {x: item.x, y: i + newItemNum};
+                    moveArr.push(this._ItemArr[i + newItemNum][item.x].item);
+                }
+            }
+            // 生成需要补足的item
+            for (let i = 0; i < newItemNum; i ++) {
+                const itemNode = this.createOneItem(cc.p(this._ItemArr[item.y][item.x].pos.x,
+                    this._ItemArr[0][item.x].pos.y + (i + 1) * cc.const.ITEM_SPACE.y), {x: item.x, y: newItemNum - i - 1});
+                moveArr.push(itemNode);
+            }
+            this.moveItemArr(moveArr);
+        });
+    },
+    /**
+     *  生成一个item
+     * @param pos
+     */
+    createOneItem(pos, zuobiao) {
+        const nameArr = cc.util.objectToArray(cc.const.ITEM_TYPE);
+        const itemType = nameArr[cc.util.randomInter(0, 5)];
+
+        const itemNode = cc.instantiate(cc.dirRes[itemType]);
+        itemNode.setPosition(pos);
+        itemNode.zuobiao = zuobiao;  // 绑定坐标
+        itemNode.type = itemType; // 绑定类型
+        this._GameNode.addChild(itemNode);
+        this._ItemArr[zuobiao.y][zuobiao.x].item = itemNode;
+        return itemNode;
+    },
+    /**
+     *  移动item
+     */
+    moveItemArr(arr) {
+        arr.forEach((item) => {
+            item.runAction(cc.moveTo(0.3, this._ItemArr[item.zuobiao.y][item.zuobiao.x].pos));
+        });
     },
 
 });

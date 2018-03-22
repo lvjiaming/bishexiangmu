@@ -17,7 +17,11 @@ cc.Class({
      *  点击
      */
     onItemClick() {
-        cc.gameControl.selectItem(this.node);
+        if (cc.gameControl.getIsCanClick()) {
+            cc.gameControl.selectItem(this.node);
+        } else {
+            cc.log(`不能点击`);
+        }
     },
 
     // update (dt) {},
