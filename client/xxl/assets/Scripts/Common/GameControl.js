@@ -407,20 +407,22 @@ const GameControl = cc.Class({
             const moveArr = [];  // 需要移动的item数组
             const newItemNum = item.y - zuobiao_y;  // 需要重新生成item的个数
             cc.log(`位置{x: ${item.x}, y: ${item.y}}, 需要生成节点数目：${newItemNum}`);
-            if (zuobiao_y != -1) {
+            if (zuobiao_y != -1) { // 找到被消除的那个item上方同一列的item，放入需要执行移动动画的数组
                 for (let i = zuobiao_y; i >= 0; i --) {
-                    this._ItemArr[i + newItemNum][item.x].item = this._ItemArr[i][item.x].item;
-                    this._ItemArr[i + newItemNum][item.x].item.zuobiao = {x: item.x, y: i + newItemNum};
-                    moveArr.push(this._ItemArr[i + newItemNum][item.x].item);
+                    if (this._ItemArr[i][item.x].item) {
+                        this._ItemArr[i + newItemNum][item.x].item = this._ItemArr[i][item.x].item;
+                        this._ItemArr[i + newItemNum][item.x].item.zuobiao = {x: item.x, y: i + newItemNum};
+                        moveArr.push(this._ItemArr[i + newItemNum][item.x].item);
+                    }
                 }
             }
             // 生成需要补足的item
             for (let i = 0; i < newItemNum; i ++) {
                 const itemNode = this.createOneItem(cc.p(this._ItemArr[item.y][item.x].pos.x,
                     this._ItemArr[0][item.x].pos.y + (i + 1) * cc.const.ITEM_SPACE.y), {x: item.x, y: newItemNum - i - 1});
-                moveArr.push(itemNode);
+                moveArr.push(itemNode);  //  将这些重新生成的item也放入需要执行移动动画的数组
             }
-            this.moveItemArr(moveArr);
+            this.moveItemArr(moveArr); // 执行移动
         });
     },
     /**
@@ -443,9 +445,93 @@ const GameControl = cc.Class({
      *  移动item
      */
     moveItemArr(arr) {
-        arr.forEach((item) => {
+        arr.forEach((item) => {  // 执行移动
             item.runAction(cc.moveTo(0.3, this._ItemArr[item.zuobiao.y][item.zuobiao.x].pos));
         });
+        // 测试代码
+        // this.scheduleOnce(() => {
+        //
+        // }, 0.4);
+        setTimeout(() => {  // 做判断是否移动的item存在能消除的item的循环操作
+            const newArr = [];
+            const desArr = [];
+            let canClick = true;
+            arr.forEach((item) => {  // 找到移动的那些item，并去判断移动后存不存在可以消除的item，能消除的放在desArr数组中
+                const result = this.checkSingleItem(item);
+                if (result.res) {
+                    cc.log(`做可以被消除的处理`);
+                    result.cleanArr.forEach((items) => {
+                        this.checkIsSameItem(desArr, items);
+                    });
+                    canClick = false;
+                }
+            });
+            desArr.forEach((item) => {  // 将能消除的item销毁掉，并重复，移动，并判断移动的item是否能消除，并补空缺的操作
+                if (this._ItemArr[item.zuobiao.y][item.zuobiao.x].item) {
+                    newArr.push({x: item.zuobiao.x, y: item.zuobiao.y});
+                    this._ItemArr[item.zuobiao.y][item.zuobiao.x].item = null;
+                    item.destroy();
+                }
+            });
+            this.complementNullItem(newArr);  // 补空缺
+            if (canClick) {  // 当不存在可销毁的item时，将item可点击打开
+                this.setIsCanClick(true);
+            }
+        }, 400);
+    },
+    /**
+     *  检查单个的item
+     */
+    checkSingleItem(item) {
+        const resultLeft1 = this.checkLeft(item.zuobiao.x, item.zuobiao.y, item.type);
+        const resultRight1 = this.checkRight(item.zuobiao.x, item.zuobiao.y, item.type);
+        const resultUp1 = this.checkUp(item.zuobiao.x, item.zuobiao.y, item.type);
+        const resultBottom1 = this.checkBottom(item.zuobiao.x, item.zuobiao.y, item.type);
+        const cleanArr = [];  // 需要清除的数组
+        const result = {}; // 结果
+        let selfItem1 = null;
+        if (resultLeft1.arr.length + resultRight1.arr.length >= 2) {
+            cleanArr.push(resultLeft1.arr);
+            cleanArr.push(resultRight1.arr);
+            selfItem1 = item;
+        }
+        if (resultUp1.arr.length + resultBottom1.arr.length >= 2) {
+            cleanArr.push(resultUp1.arr);
+            cleanArr.push(resultBottom1.arr);
+            selfItem1 = selfItem1 ? selfItem1 : item;
+        }
+        if (selfItem1) {
+            cc.log(`可以被消除`);
+            const retArr = [];
+            cleanArr.forEach((arr) => {
+                arr.forEach((im) => {
+                    retArr.push(this._ItemArr[im.y][im.x].item);
+                });
+            });
+            if (selfItem1) {
+                retArr.push(selfItem1);
+            }
+            result.res = true;
+            result.cleanArr = retArr;
+            return result;
+        } else {
+            result.res = false;
+            return result;
+        }
+    },
+    /**
+     *  检查在数组中，有没有对应位置的item，有，就不做处理，没有就将item放入数组中
+     */
+    checkIsSameItem(arr, item) {
+        let same = false;
+        arr.forEach((items) => {
+            if (items.zuobiao.x == item.zuobiao.x && items.zuobiao.y == item.zuobiao.y) {
+                same = true;
+            }
+        });
+        if (same == false) {
+            arr.push(item);
+        }
     },
 
 });
