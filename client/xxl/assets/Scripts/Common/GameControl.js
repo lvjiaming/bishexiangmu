@@ -25,6 +25,7 @@ const GameControl = cc.Class({
      *  初始化位置的配置
      */
     initPosConfig() {
+        this._ItemArr = [];
         for (let i = 0; i < cc.const.ITEM_OPT.x; i ++) {
             const arr1 = [];
             const pos_y = ((cc.const.ITEM_OPT.y - 1) * cc.const.ITEM_SPACE.y) / 2 - (i * cc.const.ITEM_SPACE.y);

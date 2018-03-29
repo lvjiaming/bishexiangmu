@@ -26,6 +26,10 @@ MsgHandle.prototype.handle = function(ws, data) {
             this.registerUser(ws, msgData);
             break;
         }
+        case msgId.MSG_ID.XXL_SAVE_SCORE_REQ: {
+            this.saveScore(ws, msgData);
+            break;
+        }
     }
 };
 /**
@@ -84,6 +88,34 @@ MsgHandle.prototype.registerUser = function (ws, data) {
         this.target.addUser(user);
         const body = sucBody(msgId.MSG_ID.XXL_REGSTER_REQ);
         sendMsg(ws, body);
+    }
+};
+MsgHandle.prototype.saveScore = function (ws, data) {
+    let user = null;
+    this.target.UserList.forEach((item) => {
+        if (item.ws === ws) {
+            user = item;
+        }
+    });
+    if (user) {
+        if (user.score >= data.score) {
+            console.log(`玩家的游戏得分未超过前面得分，不用更新`);
+            const body = sucBody(msgId.MSG_ID.XXL_SAVE_SCORE_REP);
+            body.msgData.msg = "此次得分未超过前面得分！";
+            sendMsg(ws, body);
+        } else {
+            console.log(`分数更高，更新分数`);
+            user.score = data.score;
+            const body = sucBody(msgId.MSG_ID.XXL_SAVE_SCORE_REP);
+            body.msgData.msg = "分数保存成功！";
+            sendMsg(ws, body);
+
+            const body2 = sucBody(msgId.MSG_ID.XXL_UPDATE_SCORE);
+            body2.msgData.score = data.score;
+            sendMsg(ws, body2);
+        }
+    } else {
+        cc.log(`未找到用户`);
     }
 };
 /**

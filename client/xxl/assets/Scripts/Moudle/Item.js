@@ -13,6 +13,35 @@ cc.Class({
     start () {
 
     },
+    onDestroy() {
+
+        switch (this.node.type) {
+            case cc.const.ITEM_TYPE.ITEM_BEAR: {
+                cc.net.notifyEvent("addScore", {score: cc.const.ITEM_SCORE.ITEMBEAR});
+                break;
+            }
+            case cc.const.ITEM_TYPE.ITEM_CAT: {
+                cc.net.notifyEvent("addScore", {score: cc.const.ITEM_SCORE.ITEMCAT});
+                break;
+            }
+            case cc.const.ITEM_TYPE.ITEM_CHICKEN: {
+                cc.net.notifyEvent("addScore", {score: cc.const.ITEM_SCORE.ITEMCHICKEN});
+                break;
+            }
+            case cc.const.ITEM_TYPE.ITEM_FOX: {
+                cc.net.notifyEvent("addScore", {score: cc.const.ITEM_SCORE.ITEMFOX});
+                break;
+            }
+            case cc.const.ITEM_TYPE.ITEM_FROG: {
+                cc.net.notifyEvent("addScore", {score: cc.const.ITEM_SCORE.ITEMFROG});
+                break;
+            }
+            case cc.const.ITEM_TYPE.ITEM_HORSE: {
+                cc.net.notifyEvent("addScore", {score: cc.const.ITEM_SCORE.ITEMHORSE});
+                break;
+            }
+        }
+    },
     /**
      *  点击
      */

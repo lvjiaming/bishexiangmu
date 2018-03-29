@@ -35,6 +35,10 @@ const XXLEventManager = cc.Class({
                 this.sendMessage(event, data);
                 break;
             }
+            case cc.const.MSG_ID.XXL_SAVE_SCORE_REQ: { // 请求保存分数
+                this.sendMessage(event, data);
+                break;
+            }
             default: {
                 break;
             }
@@ -53,6 +57,14 @@ const XXLEventManager = cc.Class({
                 break;
             }
             case cc.const.MSG_ID.XXL_LOGIN_IN_REQ: { // 登录的回复
+                this.notifyEvent(msgId, msgData);
+                break;
+            }
+            case cc.const.MSG_ID.XXL_SAVE_SCORE_REP: { // 登录的回复
+                this.notifyEvent(msgId, msgData);
+                break;
+            }
+            case cc.const.MSG_ID.XXL_UPDATE_SCORE: { // 登录的回复
                 this.notifyEvent(msgId, msgData);
                 break;
             }
